@@ -18,8 +18,5 @@ COPY . .
 # Create output directory
 RUN mkdir -p output
 
-# Expose port (Railway will set PORT env var)
-EXPOSE $PORT
-
-# Start command
-CMD gunicorn --chdir backend --bind 0.0.0.0:$PORT --timeout 120 --workers 1 app:app
+# Start command - use shell form to expand $PORT
+CMD gunicorn --chdir backend --bind 0.0.0.0:${PORT:-8080} --timeout 120 --workers 1 app:app
