@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Simplified Speechmatics circle logo for favicon -->
+  <circle cx="32" cy="32" r="28" fill="#1F4D5C"/>
+
+  <!-- Abstract wave/sound pattern inside -->
+  <path d="M 18 32 Q 24 22, 32 32 T 46 32"
+        stroke="#1BB8CE"
+        stroke-width="4"
+        fill="none"
+        stroke-linecap="round"/>
+
+  <path d="M 18 38 Q 24 28, 32 38 T 46 38"
+        stroke="#1BB8CE"
+        stroke-width="3"
+        fill="none"
+        stroke-linecap="round"
+        opacity="0.6"/>
+
+  <circle cx="20" cy="25" r="3" fill="#1BB8CE"/>
+  <circle cx="44" cy="25" r="3" fill="#1BB8CE"/>
+</svg>

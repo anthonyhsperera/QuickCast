@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickCast - AI Podcast Generator</title>
+    <link rel="icon" type="image/png" href="quickcast-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Decorative Background Elements -->
+    <div class="background-decoration">
+        <img src="jade-gradient.png" alt="" class="gradient-jade" aria-hidden="true">
+        <img src="jade-gradient-2.png" alt="" class="gradient-jade-2" aria-hidden="true">
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="/" target="_blank" rel="noopener noreferrer" class="header-link">
+                <div class="header-title">
+                    <img src="quickcast-logo.png" alt="QuickCast" class="logo">
+                    <h1>QuickCast</h1>
+                </div>
+            </a>
+            <p class="subheader">Your personal AI podcast generator</p>
+            <p class="subtitle">Turn any article into a 2-minute podcast conversation</p>
+        </header>
+
+        <!-- URL Input Section -->
+        <div class="input-section" id="inputSection">
+            <div class="input-group">
+                <input
+                    type="url"
+                    id="urlInput"
+                    placeholder="Paste article or blog URL here..."
+                    class="url-input"
+                >
+                <button id="generateBtn" class="generate-btn">
+                    <span class="btn-emoji">🎙️</span>
+                    <span class="btn-text">Generate Podcast</span>
+                </button>
+            </div>
+            <p class="help-text">Paste a URL to hear the key points discussed in podcast format</p>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section hidden" id="progressSection">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p class="progress-message" id="progressMessage">Initializing...</p>
+            <div class="progress-percentage" id="progressPercentage">0%</div>
+        </div>
+
+        <!-- Error Section -->
+        <div class="error-section hidden" id="errorSection">
+            <div class="error-message">
+                <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <div>
+                    <h3>Error</h3>
+                    <p id="errorMessage">Something went wrong</p>
+                </div>
+            </div>
+            <button id="retryBtn" class="retry-btn">Try Again</button>
+        </div>
+
+        <!-- Podcast Info Section -->
+        <div class="podcast-info hidden" id="podcastInfo">
+            <h2 id="podcastTitle">Loading...</h2>
+            <div class="metadata">
+                <span id="podcastAuthor" class="author"></span>
+                <span id="podcastDuration" class="duration"></span>
+            </div>
+        </div>
+
+        <!-- Audio Player Section -->
+        <div class="player-section hidden" id="playerSection">
+            <div class="audio-player">
+                <!-- Play/Pause Button -->
+                <button class="play-btn" id="playBtn">
+                    <svg class="play-icon" id="playIcon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg class="pause-icon hidden" id="pauseIcon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                    </svg>
+                </button>
+
+                <!-- Timeline -->
+                <div class="timeline-container">
+                    <div class="time current-time" id="currentTime">0:00</div>
+                    <div class="timeline">
+                        <div class="timeline-progress" id="timelineProgress"></div>
+                        <input
+                            type="range"
+                            class="timeline-slider"
+                            id="timelineSlider"
+                            min="0"
+                            max="100"
+                            value="0"
+                        >
+                    </div>
+                    <div class="time total-time" id="totalTime">0:00</div>
+                </div>
+
+                <!-- Volume Control -->
+                <div class="volume-control">
+                    <button class="volume-btn" id="volumeBtn">
+                        <svg class="volume-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                        </svg>
+                    </button>
+                    <input
+                        type="range"
+                        class="volume-slider"
+                        id="volumeSlider"
+                        min="0"
+                        max="100"
+                        value="100"
+                    >
+                </div>
+
+                <!-- Download Button -->
+                <button class="download-btn" id="downloadBtn" title="Download podcast">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Hidden Audio Element -->
+            <audio id="audioElement" preload="auto"></audio>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by
+                <a href="https://www.speechmatics.com/text-to-speech" target="_blank" rel="noopener noreferrer" class="speechmatics-link">
+                    <img src="SM-Logo-Black.svg" alt="Speechmatics" class="speechmatics-logo">
+                </a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
