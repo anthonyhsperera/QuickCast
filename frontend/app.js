@@ -1,7 +1,7 @@
 // API Configuration
-// Use relative URL in production, localhost in development
+// Use same port as frontend in development, relative URL in production
 const API_BASE_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:5000/api'
+    ? `http://localhost:${window.location.port}/api`
     : '/api';
 
 // State
