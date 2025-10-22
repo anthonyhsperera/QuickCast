@@ -33,10 +33,15 @@ git push -u origin main
 2. Click **"New +"** → **"Blueprint"**
 3. Connect your GitHub repository
 4. Render will automatically detect the `render.yaml` file
-5. Set your environment variables:
+5. Review the configuration:
+   - Build Command: `pip install --upgrade pip && pip install -r backend/requirements.txt && mkdir -p output`
+   - Start Command: `gunicorn --chdir backend --bind 0.0.0.0:$PORT --timeout 120 --workers 2 app:app`
+6. Set your environment variables:
    - `OPENAI_API_KEY`: Your OpenAI API key
    - `SPEECHMATICS_API_KEY`: Your Speechmatics API key
-6. Click **"Apply"**
+7. Click **"Apply"**
+
+**Note about ffmpeg**: Render's Python environment includes ffmpeg by default. If you encounter audio processing issues, check the logs and contact Render support.
 
 #### Option B: Manual Setup
 
@@ -46,8 +51,8 @@ git push -u origin main
 4. Configure the service:
    - **Name**: quickcast
    - **Runtime**: Python 3
-   - **Build Command**: `./build.sh`
-   - **Start Command**: `gunicorn --chdir backend --bind 0.0.0.0:$PORT app:app`
+   - **Build Command**: `pip install --upgrade pip && pip install -r backend/requirements.txt && mkdir -p output`
+   - **Start Command**: `gunicorn --chdir backend --bind 0.0.0.0:$PORT --timeout 120 --workers 2 app:app`
 5. Add environment variables:
    - `OPENAI_API_KEY`: Your OpenAI API key
    - `SPEECHMATICS_API_KEY`: Your Speechmatics API key
@@ -57,11 +62,11 @@ git push -u origin main
 ### Step 3: Wait for Deployment
 
 Render will:
-1. Install ffmpeg
-2. Install Python dependencies
-3. Start your application
+1. Install Python dependencies
+2. Create output directory
+3. Start your application with Gunicorn
 
-This takes about 3-5 minutes for the first deployment.
+This takes about 2-4 minutes for the first deployment.
 
 ### Step 4: Access Your App
 
