@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["python39", "ffmpeg"]
+
+[phases.install]
+cmds = ["pip install --upgrade pip", "pip install -r backend/requirements.txt"]
+
+[phases.build]
+cmds = ["mkdir -p output"]
+
+[start]
+cmd = "gunicorn --chdir backend --bind 0.0.0.0:$PORT --timeout 120 --workers 1 app:app"
