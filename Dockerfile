@@ -18,5 +18,9 @@ COPY . .
 # Create output directory
 RUN mkdir -p output
 
-# Start command - use shell form to expand $PORT
-CMD gunicorn --chdir backend --bind 0.0.0.0:${PORT:-8080} --timeout 120 --workers 1 app:app
+# Copy and make start script executable
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Use entrypoint script to properly expand PORT variable
+CMD ["./start.sh"]
