@@ -13,7 +13,7 @@ class Config:
 
     # Flask Configuration
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')
-    FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
+    FLASK_PORT = int(os.getenv('FLASK_PORT', 8080))
 
     # Speechmatics TTS Configuration
     SPEECHMATICS_BASE_URL = "https://preview.tts.speechmatics.com/generate"

@@ -94,7 +94,7 @@ Edit `.env` and add your API keys:
 OPENAI_API_KEY=sk-...your_openai_key_here
 SPEECHMATICS_API_KEY=your_speechmatics_key_here
 FLASK_ENV=development
-FLASK_PORT=5000
+FLASK_PORT=8080
 ```
 
 ### 5. Verify Installation
@@ -108,8 +108,8 @@ You should see:
 ============================================================
 Podcast Generator API
 ============================================================
-Server starting on http://localhost:5000
-Health check: http://localhost:5000/api/health
+Server starting on http://localhost:8080
+Health check: http://localhost:8080/api/health
 ============================================================
 ```
 
@@ -125,7 +125,7 @@ python app.py
 
 ### Using the Web Interface
 
-1. Open your browser to `http://localhost:5000`
+1. Open your browser to `http://localhost:8080`
 2. Paste a news article or blog URL
 3. Click "Generate Podcast"
 4. Wait for processing (usually 2-5 minutes)

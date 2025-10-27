@@ -47,7 +47,7 @@ python app.py
 
 ## First Podcast
 
-1. Open http://localhost:5000 in your browser
+1. Open http://localhost:8080 in your browser
 2. Paste any article URL (e.g., from TechCrunch, Medium, etc.)
 3. Click "Generate Podcast"
 4. Wait 2-5 minutes
@@ -64,7 +64,7 @@ python app.py
 ## Troubleshooting
 
 **Server won't start?**
-- Check that ports 5000 is available
+- Check that port 8080 is available
 - Verify API keys are set in `backend/.env`
 
 **Generation fails?**

@@ -10,7 +10,7 @@ class PodcastScriptGenerator:
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o"
 
-    def generate_podcast_script(self, article: Dict[str, str], target_duration: float = 2.0) -> List[Dict[str, str]]:
+    def generate_podcast_script(self, article: Dict[str, str], target_duration: float = 2.5) -> List[Dict[str, str]]:
         """
         Generate a conversational podcast script from an article
 
@@ -34,7 +34,7 @@ class PodcastScriptGenerator:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.8,
-                max_tokens=1200
+                max_tokens=1600
             )
 
             # Parse the response
