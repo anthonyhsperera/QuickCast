@@ -69,7 +69,7 @@ def generate_podcast(job: PodcastJob):
         job.message = "Generating podcast script..."
 
         # Step 2: Generate podcast script
-        dialogue = script_generator.generate_podcast_script(article)
+        dialogue = script_generator.generate_podcast_script(article, target_duration=3.0)
         estimated_duration = script_generator.estimate_duration(dialogue)
         job.metadata['estimated_duration'] = estimated_duration
         job.total_segments = len(dialogue)
