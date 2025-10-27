@@ -34,7 +34,7 @@ class PodcastScriptGenerator:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.8,
-                max_tokens=1600
+                max_tokens=2200
             )
 
             # Parse the response
@@ -48,17 +48,17 @@ class PodcastScriptGenerator:
 
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the LLM"""
-        return """You are a podcast script writer who creates SHORT, engaging conversational dialogues between two hosts: Sarah and Theo.
+        return """You are a podcast script writer who creates engaging, natural conversational dialogues between two hosts: Sarah and Theo.
 
 Sarah is enthusiastic, curious, and asks insightful questions. She often brings up interesting angles.
 Theo is knowledgeable, analytical, and great at explaining complex topics simply. He's warm and engaging.
 
-Your task is to transform articles into BRIEF, natural podcast conversations that:
+Your task is to transform articles into natural podcast conversations that:
 - Sound like real people talking (use contractions, natural speech patterns)
 - Make complex topics accessible and interesting
 - Include back-and-forth dialogue with questions, reactions, and insights
-- Are CONCISE and focused on the main points only
-- Keep each speaker turn relatively short (1-3 sentences max)
+- Cover the topic thoroughly with good depth
+- Have natural pacing with thoughtful discussion
 
 Format your output EXACTLY as:
 SARAH: [dialogue text]
@@ -80,13 +80,14 @@ Article Content:
 {article['content'][:4000]}  # Limit content
 
 Instructions:
-- Keep each line concise (1-2 sentences)
-- ~{word_count} words total
+- Target approximately {word_count} words total to reach {target_duration} minutes
 - Structure:
-  * Sarah introduces topic
-  * Discuss 2-3 key points with natural back-and-forth
-  * Theo wraps up with insights
+  * Sarah introduces topic with context
+  * Discuss 4-5 key points with natural back-and-forth dialogue
+  * Include reactions, questions, and deeper exploration of interesting aspects
+  * Theo wraps up with insights and takeaways
   * Sarah thanks listeners
+- Make sure to generate enough content to fill the full {target_duration} minutes
 
 Format each line as:
 SARAH: [text]
