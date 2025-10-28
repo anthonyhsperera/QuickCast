@@ -3,6 +3,7 @@ from botocore.config import Config as BotoConfig
 from botocore.exceptions import ClientError
 import os
 import uuid
+import base64
 from datetime import datetime, timedelta
 
 class R2Storage:
@@ -44,6 +45,28 @@ class R2Storage:
         # Use first 8 characters of UUID for short, readable IDs
         return str(uuid.uuid4())[:8]
 
+    @staticmethod
+    def _encode_metadata(text: str) -> str:
+        """Encode text to ASCII-safe base64 for S3 metadata"""
+        if not text:
+            return ""
+        # Use URL-safe base64 encoding
+        encoded = base64.urlsafe_b64encode(text.encode('utf-8')).decode('ascii')
+        return encoded
+
+    @staticmethod
+    def _decode_metadata(encoded: str) -> str:
+        """Decode base64-encoded metadata back to UTF-8 text"""
+        if not encoded:
+            return ""
+        try:
+            # Try to decode as base64 first
+            decoded = base64.urlsafe_b64decode(encoded.encode('ascii')).decode('utf-8')
+            return decoded
+        except Exception:
+            # If decoding fails, return as-is (for backward compatibility)
+            return encoded
+
     def upload_podcast(self, file_path: str, share_id: str = None, metadata: dict = None) -> dict:
         """
         Upload podcast file to R2
@@ -62,17 +85,18 @@ class R2Storage:
         # Use share_id as filename (with .wav extension)
         r2_key = f"{share_id}.wav"
 
-        # Prepare S3 metadata (must be strings)
+        # Prepare S3 metadata (encode to ASCII-safe base64)
         s3_metadata = {}
         if metadata:
             if metadata.get('title'):
-                s3_metadata['title'] = str(metadata['title'])[:1024]  # S3 metadata limit
+                # Encode to base64 to avoid UTF-8 issues
+                s3_metadata['title'] = self._encode_metadata(str(metadata['title'])[:900])
             if metadata.get('author'):
-                s3_metadata['author'] = str(metadata['author'])[:1024]
+                s3_metadata['author'] = self._encode_metadata(str(metadata['author'])[:900])
             if metadata.get('url'):
-                s3_metadata['source-url'] = str(metadata['url'])[:1024]
+                s3_metadata['source-url'] = self._encode_metadata(str(metadata['url'])[:900])
             if metadata.get('duration'):
-                s3_metadata['duration'] = str(metadata['duration'])
+                s3_metadata['duration'] = str(metadata['duration'])  # Numbers don't need encoding
 
         # Add creation timestamp
         s3_metadata['created-at'] = datetime.utcnow().isoformat()
@@ -144,9 +168,9 @@ class R2Storage:
 
             return {
                 'share_id': share_id,
-                'title': metadata.get('title', 'QuickCast Podcast'),
-                'author': metadata.get('author'),
-                'source_url': metadata.get('source-url'),
+                'title': self._decode_metadata(metadata.get('title', '')) or 'QuickCast Podcast',
+                'author': self._decode_metadata(metadata.get('author', '')),
+                'source_url': self._decode_metadata(metadata.get('source-url', '')),
                 'duration': float(metadata.get('duration', 0)) if metadata.get('duration') else None,
                 'audio_url': url,
                 'created_at': metadata.get('created-at'),
