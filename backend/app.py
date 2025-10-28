@@ -94,7 +94,8 @@ def generate_podcast(job: PodcastJob):
         article = scraper.scrape_url(job.url)
         job.metadata['article'] = {
             'title': article['title'],
-            'author': article.get('author')
+            'author': article.get('author'),
+            'url': article.get('url')
         }
 
         # Update progress
