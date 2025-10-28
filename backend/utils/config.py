@@ -27,6 +27,14 @@ class Config:
     # OpenAI Configuration
     OPENAI_MODEL = "gpt-4o"
 
+    # Cloudflare R2 Configuration
+    R2_ACCOUNT_ID = os.getenv('R2_ACCOUNT_ID')
+    R2_ACCESS_KEY_ID = os.getenv('R2_ACCESS_KEY_ID')
+    R2_SECRET_ACCESS_KEY = os.getenv('R2_SECRET_ACCESS_KEY')
+    R2_BUCKET_NAME = os.getenv('R2_BUCKET_NAME', 'quickcast-podcasts')
+    R2_PUBLIC_URL = os.getenv('R2_PUBLIC_URL')  # Optional - for public bucket URLs
+    R2_ENABLED = bool(R2_ACCOUNT_ID and R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY)
+
     @staticmethod
     def validate():
         """Validate that required configuration is present"""

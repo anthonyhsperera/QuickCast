@@ -41,6 +41,15 @@ const totalTime = document.getElementById('totalTime');
 const volumeSlider = document.getElementById('volumeSlider');
 const volumeBtn = document.getElementById('volumeBtn');
 const downloadBtn = document.getElementById('downloadBtn');
+const shareBtn = document.getElementById('shareBtn');
+const shareModal = document.getElementById('shareModal');
+const shareModalClose = document.getElementById('shareModalClose');
+const shareModalOverlay = document.getElementById('shareModalOverlay');
+const shareLinkInput = document.getElementById('shareLinkInput');
+const copyLinkBtn = document.getElementById('copyLinkBtn');
+const copyBtnText = document.getElementById('copyBtnText');
+const copyIcon = document.getElementById('copyIcon');
+const checkIcon = document.getElementById('checkIcon');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -70,6 +79,20 @@ function setupEventListeners() {
     audioElement.addEventListener('loadedmetadata', handleAudioLoaded);
     audioElement.addEventListener('timeupdate', handleTimeUpdate);
     audioElement.addEventListener('ended', handleAudioEnded);
+
+    // Share modal events
+    if (shareBtn) {
+        shareBtn.addEventListener('click', openShareModal);
+    }
+    if (shareModalClose) {
+        shareModalClose.addEventListener('click', closeShareModal);
+    }
+    if (shareModalOverlay) {
+        shareModalOverlay.addEventListener('click', closeShareModal);
+    }
+    if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', copyShareLink);
+    }
 }
 
 // Main Functions
@@ -252,6 +275,11 @@ function handleCompletion(data) {
     // Load audio
     const audioUrl = `${API_BASE_URL}/audio/${currentJobId}`;
     loadAudio(audioUrl);
+
+    // Show share button if share URL is available
+    if (metadata.share_url && shareBtn) {
+        shareBtn.classList.remove('hidden');
+    }
 }
 
 function loadAudio(url) {
@@ -456,6 +484,14 @@ function resetUI() {
     playerSection.classList.add('hidden');
     inputSection.classList.remove('hidden');
 
+    // Hide share button and modal
+    if (shareBtn) {
+        shareBtn.classList.add('hidden');
+    }
+    if (shareModal) {
+        shareModal.classList.add('hidden');
+    }
+
     // Reset player state
     playIcon.classList.remove('hidden');
     pauseIcon.classList.add('hidden');
@@ -492,6 +528,67 @@ function hideBufferingIndicator() {
     if (bufferingEl) {
         bufferingEl.classList.add('hidden');
     }
+}
+
+// Share Functions
+function openShareModal() {
+    const shareUrl = `${window.location.origin}/s/${currentJobId.split('-')[0]}`;
+
+    // Try to get actual share URL from job metadata
+    fetch(`${API_BASE_URL}/status/${currentJobId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.metadata && data.metadata.share_id) {
+                const actualShareUrl = `${window.location.origin}/s/${data.metadata.share_id}`;
+                shareLinkInput.value = actualShareUrl;
+            } else {
+                shareLinkInput.value = shareUrl;
+            }
+        })
+        .catch(() => {
+            shareLinkInput.value = shareUrl;
+        });
+
+    shareModal.classList.remove('hidden');
+    shareLinkInput.select();
+}
+
+function closeShareModal() {
+    shareModal.classList.add('hidden');
+    resetCopyButton();
+}
+
+async function copyShareLink() {
+    try {
+        await navigator.clipboard.writeText(shareLinkInput.value);
+
+        // Update button to show success
+        copyBtnText.textContent = 'Copied!';
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        copyLinkBtn.classList.add('copied');
+
+        // Reset after 2 seconds
+        setTimeout(resetCopyButton, 2000);
+    } catch (error) {
+        // Fallback for browsers that don't support clipboard API
+        shareLinkInput.select();
+        document.execCommand('copy');
+
+        copyBtnText.textContent = 'Copied!';
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        copyLinkBtn.classList.add('copied');
+
+        setTimeout(resetCopyButton, 2000);
+    }
+}
+
+function resetCopyButton() {
+    copyBtnText.textContent = 'Copy';
+    copyIcon.classList.remove('hidden');
+    checkIcon.classList.add('hidden');
+    copyLinkBtn.classList.remove('copied');
 }
 
 // Utility Functions

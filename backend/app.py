@@ -11,6 +11,7 @@ from services.scraper import ArticleScraper
 from services.llm import PodcastScriptGenerator
 from services.tts import SpeechmaticsTTS
 from services.audio import AudioProcessor
+from services.storage import R2Storage
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -28,6 +29,24 @@ scraper = ArticleScraper()
 script_generator = PodcastScriptGenerator(Config.OPENAI_API_KEY)
 tts = SpeechmaticsTTS(Config.SPEECHMATICS_API_KEY)
 audio_processor = AudioProcessor()
+
+# Initialize R2 storage if configured
+r2_storage = None
+if Config.R2_ENABLED:
+    try:
+        r2_storage = R2Storage(
+            account_id=Config.R2_ACCOUNT_ID,
+            access_key_id=Config.R2_ACCESS_KEY_ID,
+            secret_access_key=Config.R2_SECRET_ACCESS_KEY,
+            bucket_name=Config.R2_BUCKET_NAME,
+            public_url=Config.R2_PUBLIC_URL
+        )
+        print(f"✅ R2 storage enabled for sharing (bucket: {Config.R2_BUCKET_NAME})")
+    except Exception as e:
+        print(f"⚠️  Failed to initialize R2 storage: {e}")
+        r2_storage = None
+else:
+    print("⚠️  R2 storage not configured - sharing feature disabled")
 
 # In-memory job storage (in production, use a database)
 jobs = {}
@@ -48,6 +67,10 @@ class PodcastJob:
         self.total_segments = 0
         self.metadata = {}
         self.created_at = datetime.now()
+        # Sharing fields
+        self.share_id = None
+        self.share_url = None
+        self.r2_uploaded = False
 
 def generate_podcast(job: PodcastJob):
     """Background task to generate podcast"""
@@ -116,6 +139,33 @@ def generate_podcast(job: PodcastJob):
 
         # Normalize the final audio
         audio_processor.normalize_audio(output_path)
+
+        # Upload to R2 for sharing (if enabled)
+        if r2_storage:
+            try:
+                job.progress = 95
+                job.message = "Uploading for sharing..."
+
+                upload_result = r2_storage.upload_podcast(
+                    file_path=output_path,
+                    metadata={
+                        'title': article.get('title', 'QuickCast Podcast'),
+                        'author': article.get('author'),
+                        'url': job.url,
+                        'duration': combined_metadata.get('duration')
+                    }
+                )
+
+                job.share_id = upload_result['share_id']
+                job.share_url = f"/s/{job.share_id}"
+                job.r2_uploaded = True
+                job.metadata['share_id'] = job.share_id
+                job.metadata['share_url'] = job.share_url
+
+                print(f"✅ Podcast uploaded to R2 for sharing: {job.share_url}")
+            except Exception as e:
+                print(f"⚠️  Failed to upload to R2: {e}")
+                # Don't fail the job if sharing upload fails
 
         # Update progress
         job.progress = 100
@@ -234,6 +284,39 @@ def get_audio(job_id):
             as_attachment=False,
             download_name=f"podcast_{job_id}.wav"
         )
+
+@app.route('/api/share/<share_id>', methods=['GET'])
+def get_share_metadata(share_id):
+    """Get metadata for a shared podcast"""
+    if not r2_storage:
+        return jsonify({'error': 'Sharing not enabled'}), 503
+
+    try:
+        metadata = r2_storage.get_file_metadata(share_id)
+
+        if not metadata.get('exists'):
+            return jsonify({'error': 'Shared podcast not found or expired'}), 404
+
+        return jsonify(metadata)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/s/<share_id>', methods=['GET'])
+def serve_share_page(share_id):
+    """Serve the share page HTML"""
+    share_html_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'share.html')
+    if os.path.exists(share_html_path):
+        return send_file(share_html_path)
+    return jsonify({'error': 'Share page not found'}), 404
+
+@app.route('/share.js', methods=['GET'])
+def serve_share_js():
+    """Serve the share page JavaScript"""
+    js_path = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'share.js')
+    if os.path.exists(js_path):
+        return send_file(js_path, mimetype='application/javascript')
+    return '', 404
 
 @app.route('/api/jobs', methods=['GET'])
 def list_jobs():
