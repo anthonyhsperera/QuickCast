@@ -516,6 +516,13 @@ body {
     border: none;
 }
 
+/* Action Buttons Container */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .download-btn {
     background: var(--surface-light);
     border: 2px solid var(--border);
@@ -837,31 +844,45 @@ body {
     }
 }
 
-/* Share Button */
+/* Share Button - Matches download button style */
 .share-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
     background: var(--accent-teal);
     color: white;
-    border: none;
+    border: 2px solid var(--accent-teal);
+    border-radius: 8px;
+    padding: 12px;
     cursor: pointer;
-    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(45, 150, 135, 0.2);
+    gap: 6px;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
 }
 
 .share-btn:hover {
     background: #258A7D;
-    transform: scale(1.05);
+    border-color: #258A7D;
+    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(45, 150, 135, 0.3);
 }
 
 .share-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Hide share text on mobile */
+@media (max-width: 640px) {
+    .share-btn-text {
+        display: none;
+    }
+
+    .share-btn {
+        padding: 12px;
+    }
 }
 
 /* Share Modal */
