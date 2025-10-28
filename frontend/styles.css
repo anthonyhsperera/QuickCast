@@ -516,33 +516,29 @@ body {
     border: none;
 }
 
-/* Action Buttons Container */
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
+/* Download Button - Subtle, icon-only */
 .download-btn {
+    width: 40px;
+    height: 40px;
     background: var(--surface-light);
     border: 2px solid var(--border);
     border-radius: 8px;
-    padding: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .download-btn:hover {
     background: var(--border);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .download-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     color: var(--text-primary);
 }
 
@@ -844,28 +840,36 @@ body {
     }
 }
 
-/* Share Button - With gradient to make it pop */
-.share-btn {
+/* Share CTA - Premium full-width gradient button */
+.share-cta-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.share-cta-btn {
     background: linear-gradient(135deg, var(--primary-color), var(--accent-teal));
     color: white;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 32px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+    gap: 10px;
+    transition: all 0.3s ease;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 1rem;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(45, 150, 135, 0.25);
+    box-shadow: 0 4px 12px rgba(45, 150, 135, 0.2);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 400px;
 }
 
-.share-btn::before {
+.share-cta-btn::before {
     content: '';
     position: absolute;
     top: 0;
@@ -874,38 +878,40 @@ body {
     bottom: 0;
     background: linear-gradient(135deg, #163A46, #258A7D);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
 }
 
-.share-btn:hover::before {
+.share-cta-btn:hover::before {
     opacity: 1;
 }
 
-.share-btn:hover {
+.share-cta-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(45, 150, 135, 0.4);
+    box-shadow: 0 8px 20px rgba(45, 150, 135, 0.35);
 }
 
-.share-btn svg {
-    width: 18px;
-    height: 18px;
+.share-cta-btn svg {
+    width: 20px;
+    height: 20px;
     position: relative;
     z-index: 1;
 }
 
-.share-btn-text {
+.share-cta-text {
     position: relative;
     z-index: 1;
 }
 
-/* Hide share text on mobile */
+/* Responsive share CTA */
 @media (max-width: 640px) {
-    .share-btn-text {
-        display: none;
+    .share-cta-btn {
+        font-size: 0.9375rem;
+        padding: 14px 24px;
+        max-width: none;
     }
 
-    .share-btn {
-        padding: 12px;
+    .share-cta-text {
+        display: inline;
     }
 }
 

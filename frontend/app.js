@@ -42,6 +42,7 @@ const volumeSlider = document.getElementById('volumeSlider');
 const volumeBtn = document.getElementById('volumeBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
+const shareCTAContainer = document.getElementById('shareCTAContainer');
 const shareModal = document.getElementById('shareModal');
 const shareModalClose = document.getElementById('shareModalClose');
 const shareModalOverlay = document.getElementById('shareModalOverlay');
@@ -276,9 +277,9 @@ function handleCompletion(data) {
     const audioUrl = `${API_BASE_URL}/audio/${currentJobId}`;
     loadAudio(audioUrl);
 
-    // Show share button if share URL is available
-    if (metadata.share_url && shareBtn) {
-        shareBtn.classList.remove('hidden');
+    // Show share CTA if share URL is available
+    if (metadata.share_url && shareCTAContainer) {
+        shareCTAContainer.classList.remove('hidden');
     }
 }
 
@@ -484,9 +485,9 @@ function resetUI() {
     playerSection.classList.add('hidden');
     inputSection.classList.remove('hidden');
 
-    // Hide share button and modal
-    if (shareBtn) {
-        shareBtn.classList.add('hidden');
+    // Hide share CTA and modal
+    if (shareCTAContainer) {
+        shareCTAContainer.classList.add('hidden');
     }
     if (shareModal) {
         shareModal.classList.add('hidden');
