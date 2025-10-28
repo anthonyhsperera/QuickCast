@@ -3,6 +3,7 @@ from typing import Dict, List, Callable
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import urlencode
 
 class SpeechmaticsTTS:
     """Handles text-to-speech conversion using Speechmatics API"""
@@ -11,6 +12,19 @@ class SpeechmaticsTTS:
         self.api_key = api_key
         self.base_url = base_url
         self.sample_rate = 16000
+
+    def _get_endpoint_url(self, url: str) -> str:
+        """Format the endpoint URL with the app tracking parameter.
+
+        Args:
+            url: The base URL for the endpoint.
+
+        Returns:
+            str: The formatted endpoint URL.
+        """
+        query_params = {"sm-app": "quickcast"}
+        query = urlencode(query_params)
+        return f"{url}?{query}"
 
     def generate_speech(self, text: str, voice: str, max_retries: int = 4) -> bytes:
         """
@@ -24,7 +38,7 @@ class SpeechmaticsTTS:
         Returns:
             WAV audio data as bytes
         """
-        voice_url = f"{self.base_url}/{voice.lower()}"
+        voice_url = self._get_endpoint_url(f"{self.base_url}/{voice.lower()}")
 
         data = {
             "text": text
