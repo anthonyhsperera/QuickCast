@@ -134,8 +134,13 @@ async function loadSharedPodcast() {
             return;
         }
 
-        // Display podcast info
-        podcastTitle.textContent = data.title || 'QuickCast Podcast';
+        // Display podcast info with clickable title
+        const title = data.title || 'QuickCast Podcast';
+        if (data.source_url) {
+            podcastTitle.innerHTML = `<a href="${data.source_url}" target="_blank" rel="noopener noreferrer" class="podcast-title-link">${title}</a>`;
+        } else {
+            podcastTitle.textContent = title;
+        }
 
         // Display cleaned source URL
         if (data.source_url) {
