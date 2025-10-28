@@ -11,7 +11,15 @@ from services.scraper import ArticleScraper
 from services.llm import PodcastScriptGenerator
 from services.tts import SpeechmaticsTTS
 from services.audio import AudioProcessor
-from services.storage import R2Storage
+
+# Import R2Storage only if boto3 is available
+try:
+    from services.storage import R2Storage
+    R2_IMPORT_SUCCESS = True
+except ImportError as e:
+    print(f"⚠️  boto3 not available, sharing feature disabled: {e}")
+    R2Storage = None
+    R2_IMPORT_SUCCESS = False
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -32,7 +40,7 @@ audio_processor = AudioProcessor()
 
 # Initialize R2 storage if configured
 r2_storage = None
-if Config.R2_ENABLED:
+if R2_IMPORT_SUCCESS and Config.R2_ENABLED:
     try:
         r2_storage = R2Storage(
             account_id=Config.R2_ACCOUNT_ID,
@@ -45,6 +53,8 @@ if Config.R2_ENABLED:
     except Exception as e:
         print(f"⚠️  Failed to initialize R2 storage: {e}")
         r2_storage = None
+elif not R2_IMPORT_SUCCESS:
+    print("⚠️  R2 storage unavailable - boto3 not installed")
 else:
     print("⚠️  R2 storage not configured - sharing feature disabled")
 
