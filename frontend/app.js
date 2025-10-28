@@ -258,10 +258,18 @@ function handleCompletion(data) {
     const article = metadata.article || {};
     const audio = metadata.audio || {};
 
-    podcastTitle.textContent = article.title || 'Your Podcast';
+    // Make title clickable if article URL available
+    const title = article.title || 'Your Podcast';
+    if (article.url) {
+        podcastTitle.innerHTML = `<a href="${article.url}" target="_blank" rel="noopener noreferrer" class="podcast-title-link">${title}</a>`;
+    } else {
+        podcastTitle.textContent = title;
+    }
 
+    // Clean author URL for display
     if (article.author) {
-        podcastAuthor.textContent = article.author;
+        const cleanedAuthor = cleanSourceUrl(article.author);
+        podcastAuthor.textContent = cleanedAuthor;
         podcastAuthor.classList.remove('hidden');
     } else {
         podcastAuthor.classList.add('hidden');
@@ -612,4 +620,58 @@ function formatDuration(seconds) {
     }
 
     return `${mins}m ${secs}s`;
+}
+
+// Clean source URL to display-friendly format
+function cleanSourceUrl(url) {
+    if (!url) return '';
+
+    try {
+        const urlObj = new URL(url);
+        let domain = urlObj.hostname;
+
+        // Remove www. prefix
+        domain = domain.replace(/^www\./, '');
+
+        // Extract pathname for context (e.g., /bbcnews)
+        const path = urlObj.pathname.split('/').filter(p => p);
+
+        // Common domain to name mappings
+        const domainNames = {
+            'facebook.com': 'Facebook',
+            'twitter.com': 'Twitter',
+            'x.com': 'X',
+            'linkedin.com': 'LinkedIn',
+            'medium.com': 'Medium',
+            'substack.com': 'Substack',
+            'nytimes.com': 'The New York Times',
+            'wsj.com': 'The Wall Street Journal',
+            'theguardian.com': 'The Guardian',
+            'bbc.com': 'BBC',
+            'bbc.co.uk': 'BBC',
+            'cnn.com': 'CNN',
+            'reuters.com': 'Reuters',
+            'bloomberg.com': 'Bloomberg',
+            'techcrunch.com': 'TechCrunch',
+            'theverge.com': 'The Verge',
+            'wired.com': 'Wired'
+        };
+
+        // Check if we have a known domain
+        if (domainNames[domain]) {
+            // For Facebook pages, add the page name if available
+            if (domain === 'facebook.com' && path.length > 0) {
+                return `${domainNames[domain]} - ${path[0]}`;
+            }
+            return domainNames[domain];
+        }
+
+        // For unknown domains, capitalize first letter and remove TLD
+        const baseDomain = domain.split('.')[0];
+        return baseDomain.charAt(0).toUpperCase() + baseDomain.slice(1);
+
+    } catch (e) {
+        // If URL parsing fails, return the original
+        return url;
+    }
 }

@@ -362,6 +362,17 @@ body {
     color: var(--text-primary);
 }
 
+/* Subtle link styling for podcast title */
+.podcast-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+
+.podcast-title-link:hover {
+    text-decoration: underline;
+}
+
 .metadata {
     display: flex;
     justify-content: center;
@@ -793,6 +804,9 @@ body {
 
 .cta-section {
     margin-top: 40px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .cta-box {
