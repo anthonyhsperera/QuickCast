@@ -13,7 +13,7 @@ const errorSection = document.getElementById('errorSection');
 const errorMessage = document.getElementById('errorMessage');
 const podcastInfo = document.getElementById('podcastInfo');
 const podcastTitle = document.getElementById('podcastTitle');
-const podcastAuthor = document.getElementById('podcastAuthor');
+const podcastSource = document.getElementById('podcastSource');
 const podcastDuration = document.getElementById('podcastDuration');
 const playerSection = document.getElementById('playerSection');
 const ctaSection = document.getElementById('ctaSection');
@@ -27,6 +27,15 @@ const totalTime = document.getElementById('totalTime');
 const volumeSlider = document.getElementById('volumeSlider');
 const volumeBtn = document.getElementById('volumeBtn');
 const downloadBtn = document.getElementById('downloadBtn');
+const shareBtn = document.getElementById('shareBtn');
+const shareModal = document.getElementById('shareModal');
+const shareModalClose = document.getElementById('shareModalClose');
+const shareModalOverlay = document.getElementById('shareModalOverlay');
+const shareLinkInput = document.getElementById('shareLinkInput');
+const copyLinkBtn = document.getElementById('copyLinkBtn');
+const copyBtnText = document.getElementById('copyBtnText');
+const copyIcon = document.getElementById('copyIcon');
+const checkIcon = document.getElementById('checkIcon');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -42,6 +51,60 @@ function extractShareId() {
     const match = path.match(/\/s\/([a-zA-Z0-9]+)/);
     if (match) {
         shareId = match[1];
+    }
+}
+
+// Clean source URL to display-friendly format
+function cleanSourceUrl(url) {
+    if (!url) return '';
+
+    try {
+        const urlObj = new URL(url);
+        let domain = urlObj.hostname;
+
+        // Remove www. prefix
+        domain = domain.replace(/^www\./, '');
+
+        // Extract pathname for context (e.g., /bbcnews)
+        const path = urlObj.pathname.split('/').filter(p => p);
+
+        // Common domain to name mappings
+        const domainNames = {
+            'facebook.com': 'Facebook',
+            'twitter.com': 'Twitter',
+            'x.com': 'X',
+            'linkedin.com': 'LinkedIn',
+            'medium.com': 'Medium',
+            'substack.com': 'Substack',
+            'nytimes.com': 'The New York Times',
+            'wsj.com': 'The Wall Street Journal',
+            'theguardian.com': 'The Guardian',
+            'bbc.com': 'BBC',
+            'bbc.co.uk': 'BBC',
+            'cnn.com': 'CNN',
+            'reuters.com': 'Reuters',
+            'bloomberg.com': 'Bloomberg',
+            'techcrunch.com': 'TechCrunch',
+            'theverge.com': 'The Verge',
+            'wired.com': 'Wired'
+        };
+
+        // Check if we have a known domain
+        if (domainNames[domain]) {
+            // For Facebook pages, add the page name if available
+            if (domain === 'facebook.com' && path.length > 0) {
+                return `${domainNames[domain]} - ${path[0]}`;
+            }
+            return domainNames[domain];
+        }
+
+        // For unknown domains, capitalize first letter and remove TLD
+        const baseDomain = domain.split('.')[0];
+        return baseDomain.charAt(0).toUpperCase() + baseDomain.slice(1);
+
+    } catch (e) {
+        // If URL parsing fails, return the original
+        return url;
     }
 }
 
@@ -74,11 +137,16 @@ async function loadSharedPodcast() {
         // Display podcast info
         podcastTitle.textContent = data.title || 'QuickCast Podcast';
 
-        if (data.author) {
-            podcastAuthor.textContent = data.author;
-            podcastAuthor.classList.remove('hidden');
+        // Display cleaned source URL
+        if (data.source_url) {
+            const cleanedSource = cleanSourceUrl(data.source_url);
+            podcastSource.textContent = cleanedSource;
+            podcastSource.classList.remove('hidden');
+        } else if (data.author) {
+            podcastSource.textContent = data.author;
+            podcastSource.classList.remove('hidden');
         } else {
-            podcastAuthor.classList.add('hidden');
+            podcastSource.classList.add('hidden');
         }
 
         if (data.duration) {
@@ -118,6 +186,20 @@ function setupEventListeners() {
     audioElement.addEventListener('loadedmetadata', handleAudioLoaded);
     audioElement.addEventListener('timeupdate', handleTimeUpdate);
     audioElement.addEventListener('ended', handleAudioEnded);
+
+    // Share modal events
+    if (shareBtn) {
+        shareBtn.addEventListener('click', openShareModal);
+    }
+    if (shareModalClose) {
+        shareModalClose.addEventListener('click', closeShareModal);
+    }
+    if (shareModalOverlay) {
+        shareModalOverlay.addEventListener('click', closeShareModal);
+    }
+    if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', copyShareLink);
+    }
 }
 
 // Audio Controls
@@ -186,6 +268,53 @@ function showError(message) {
     playerSection.classList.add('hidden');
     errorSection.classList.remove('hidden');
     errorMessage.textContent = message;
+}
+
+// Share Functions
+function openShareModal() {
+    // Use current page URL for sharing
+    const shareUrl = window.location.href;
+    shareLinkInput.value = shareUrl;
+    shareModal.classList.remove('hidden');
+    shareLinkInput.select();
+}
+
+function closeShareModal() {
+    shareModal.classList.add('hidden');
+    resetCopyButton();
+}
+
+async function copyShareLink() {
+    try {
+        await navigator.clipboard.writeText(shareLinkInput.value);
+
+        // Update button to show success
+        copyBtnText.textContent = 'Copied!';
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        copyLinkBtn.classList.add('copied');
+
+        // Reset after 2 seconds
+        setTimeout(resetCopyButton, 2000);
+    } catch (error) {
+        // Fallback for browsers that don't support clipboard API
+        shareLinkInput.select();
+        document.execCommand('copy');
+
+        copyBtnText.textContent = 'Copied!';
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        copyLinkBtn.classList.add('copied');
+
+        setTimeout(resetCopyButton, 2000);
+    }
+}
+
+function resetCopyButton() {
+    copyBtnText.textContent = 'Copy';
+    copyIcon.classList.remove('hidden');
+    checkIcon.classList.add('hidden');
+    copyLinkBtn.classList.remove('copied');
 }
 
 // Utility Functions
